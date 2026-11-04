@@ -85,17 +85,22 @@ describe("Hermes（DeepSeek）", () => {
       db.run(`create table messages (id integer primary key, session_id text, role text, content text, tool_calls text,
               timestamp real, token_count integer)`);
       const t = new Date(2026, 7, 14, 1, 20).getTime() / 1000;
+      db.run(`create table session_model_usage (session_id text, model text, output_tokens integer)`);
+      db.run(`insert into session_model_usage values ('a','deepseek-v4-pro',300),('a','deepseek-v4-pro',20)`);
       db.run(`insert into sessions values ('a','weixin','deepseek-v4-pro','微信聊天',null,null),
                                           ('b','cron','deepseek-v4-pro',null,null,null)`);
       db.run(`insert into messages (session_id,role,content,tool_calls,timestamp,token_count) values
               ('a','user','今晚帮我整理一下日程',null,${t},null),
-              ('a','assistant','好的','[{"id":1},{"id":2}]',${t + 5},88),
+              ('a','assistant','好的','[{"id":1},{"id":2}]',${t + 5},null),
+              ('a','assistant','还有吗',null,${t + 8},null),
               ('a','tool','{}',null,${t + 6},null),
               ('a','session_meta','x',null,${t + 7},null),
               ('b','user','定时汇报',null,${t + 60},null)`);
       db.close();
       const evs = await collect(hermesAdapter(path).scan(Y2026));
-      expect(evs).toHaveLength(4);
+      expect(evs).toHaveLength(5);
+      // 会话级 token 只记一次，落在第一次回复上
+      expect(evs.filter((e) => e.role === "assistant").map((e) => e.outputTokens)).toEqual([320, undefined]);
       expect(evs.every((e) => e.vendor === "DeepSeek")).toBe(true);
       expect(evs.find((e) => e.role === "assistant")?.toolCalls).toBe(2);
       expect(evs.filter((e) => e.automated).map((e) => e.text)).toEqual(["定时汇报"]);

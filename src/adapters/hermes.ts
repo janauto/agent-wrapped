@@ -63,6 +63,16 @@ export function hermesAdapter(dbPath = join(home(), ".hermes", "state.db")): Ada
       if (!(await exists(dbPath))) return;
       const { db, cleanup } = await openReadonly(dbPath);
       try {
+        // Hermes 的 token 用量记在会话级（messages.token_count 基本为空）：
+        // 整个会话的输出 token 记到该会话在统计区间内的第一次回复上。
+        const usage = new Map<string, number>();
+        try {
+          for (const u of db.query("select session_id sid, sum(output_tokens) t from session_model_usage group by 1").all() as any[])
+            if (u.t > 0) usage.set(u.sid, u.t);
+        } catch {
+          for (const u of db.query("select id sid, output_tokens t from sessions where output_tokens > 0").all() as any[])
+            usage.set(u.sid, u.t);
+        }
         const rows = db
           .query(
             `select m.session_id sid, m.role, m.content, m.tool_calls, m.timestamp ts, m.token_count tok,
@@ -91,6 +101,10 @@ export function hermesAdapter(dbPath = join(home(), ".hermes", "state.db")): Ada
           if (r.role === "assistant") {
             ev.toolCalls = countToolCalls(r.tool_calls);
             if (typeof r.tok === "number") ev.outputTokens = r.tok;
+            else if (usage.has(r.sid)) {
+              ev.outputTokens = usage.get(r.sid);
+              usage.delete(r.sid);
+            }
           }
           yield ev;
         }

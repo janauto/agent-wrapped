@@ -247,6 +247,7 @@ export function renderReport(s: Stats, p: Persona, notes: SourceNote[]): string 
     "p-end",
     `<p class="kicker">数据从哪来</p>
      <ul class="notes">${notes.map((n) => `<li><b>${esc(n.label)}</b><span>${esc(n.detail)}</span></li>`).join("")}</ul>
+     <p><a class="lnk" href="atlas-${s.year}.html">查看详细使用图鉴（可打印）→</a></p>
      <p class="soft">所有统计都在这台电脑上完成，聊天记录没有上传到任何地方。<br>年报里只引用了几句原话，生成时加 --redact 可以全部隐藏。<br>生成于 ${new Date(s.generatedAt).toLocaleString("zh-CN")}</p>`,
   );
 
@@ -321,6 +322,7 @@ svg.heat{width:100%;height:auto}
 .tags li,.notes li{display:flex;flex-direction:column;padding:12px 14px;background:rgba(255,255,255,.08);border-radius:12px}
 .tags b{font-size:18px}.tags span,.notes span{color:var(--soft);font-size:13px;word-break:break-all}
 .notes b{font-size:15px}
+.lnk{color:var(--hl);text-decoration:none;font-size:15px;border-bottom:1px solid currentColor}
 .dots{position:fixed;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px}
 .dots i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .3s}
 .dots i.on{background:var(--fg);height:14px;border-radius:3px}

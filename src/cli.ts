@@ -9,6 +9,8 @@ import { claudeCodeAdapter } from "./adapters/claude-code";
 import { hermesAdapter } from "./adapters/hermes";
 import type { Adapter, SourceId } from "./model";
 import { Aggregator } from "./stats/aggregate";
+import { DetailAggregator } from "./stats/detail";
+import { renderAtlas } from "./report/atlas";
 import { persona } from "./stats/persona";
 import { renderReport, type SourceNote } from "./report/html";
 
@@ -20,6 +22,8 @@ const HELP = `用法：bun run wrapped [选项]
   --out <目录>         输出目录（默认 out/）
   --redact            不在年报里显示任何原话片段和会话标题（适合公开分享）
   --json              同时输出统计数据 stats-<年份>.json
+
+每次生成两页：wrapped-<年份>.html（竖屏年报）和 atlas-<年份>.html（给人力 / 主管看的使用图鉴，可打印）
   -h, --help          显示帮助`;
 
 const { values } = parseArgs({
@@ -54,6 +58,7 @@ const adapters = wanted ? all.filter((a) => wanted.has(a.id)) : all;
 
 console.log(`agent-wrapped · 统计 ${year} 年\n`);
 const agg = new Aggregator(year, Boolean(values.redact));
+const detail = new DetailAggregator(year, Boolean(values.redact));
 const notes: SourceNote[] = [];
 
 for (const a of adapters) {
@@ -68,6 +73,7 @@ for (const a of adapters) {
   try {
     for await (const ev of a.scan({ from, to })) {
       agg.add(ev);
+      detail.add(ev);
       n++;
     }
   } catch (e) {
@@ -84,7 +90,13 @@ const outDir = resolve(values.out ?? "out");
 await mkdir(outDir, { recursive: true });
 const htmlPath = join(outDir, `wrapped-${year}.html`);
 await Bun.write(htmlPath, renderReport(stats, p, notes));
-if (values.json) await Bun.write(join(outDir, `stats-${year}.json`), JSON.stringify({ ...stats, persona: p }, null, 2));
+const d = detail.finish();
+const atlasPath = join(outDir, `atlas-${year}.html`);
+const pkg = await Bun.file(new URL("../package.json", import.meta.url)).json();
+const command = ["bun run wrapped", ...process.argv.slice(2)].join(" ").replaceAll(process.env.HOME ?? "\0", "~");
+await Bun.write(atlasPath, renderAtlas(d, notes, { version: pkg.version, command, redacted: Boolean(values.redact) }));
+if (values.json)
+  await Bun.write(join(outDir, `stats-${year}.json`), JSON.stringify({ ...stats, persona: p, detail: d }, null, 2));
 
 const t = stats.totals;
 console.log(`
@@ -93,4 +105,5 @@ ${year} 年：活跃 ${t.activeDays} 天 · 你发出 ${t.userMsgs.toLocaleStrin
 人设：${p.title}${p.tags.length > 1 ? `（${p.tags.slice(1).map((x) => x.name).join("、")}）` : ""}
 自动化：${t.automatedSessions} 个会话、${t.automatedMsgs} 条指令（不计入上面）
 
-年报：${htmlPath}`);
+年报：${htmlPath}
+图鉴：${atlasPath}`);
