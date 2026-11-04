@@ -1,0 +1,9 @@
+[{"conversation_id":"AAAA-1111","title":"周末出游计划","default_model_slug":"gpt-5",
+  "mapping":{
+   "n0":{"message":null},
+   "n1":{"message":{"author":{"role":"system"},"create_time":1772000000,"content":{"content_type":"text","parts":[""]},"metadata":{"is_visually_hidden_from_conversation":true}}},
+   "n2":{"message":{"author":{"role":"user"},"create_time":1772000100,"content":{"content_type":"text","parts":["周末去哪里玩比较好"]},"metadata":{}}},
+   "n3":{"message":{"author":{"role":"assistant"},"recipient":"web","create_time":1772000110,"content":{"content_type":"code","text":"search"},"metadata":{"model_slug":"gpt-5"}}},
+   "n4":{"message":{"author":{"role":"tool"},"create_time":1772000120,"content":{"content_type":"text","parts":["结果"]},"metadata":{}}},
+   "n5":{"message":{"author":{"role":"assistant"},"recipient":"all","create_time":1772000130,"content":{"content_type":"text","parts":["可以去爬山。"]},"metadata":{"model_slug":"gpt-5"}}}
+  }}]
