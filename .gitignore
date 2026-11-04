@@ -1,0 +1,9 @@
+# 生成的年报与用户导入的导出包含个人聊天数据，一律不进仓库
+out/
+imports/
+*.local.*
+.env
+.env.*
+
+node_modules/
+.DS_Store

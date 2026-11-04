@@ -1,0 +1,15 @@
+{
+  "name": "agent-wrapped",
+  "version": "0.0.1",
+  "private": true,
+  "description": "读取本机各 AI Agent 的聊天记录，生成年报式的个人使用轨迹",
+  "type": "module",
+  "bin": { "agent-wrapped": "src/cli.ts" },
+  "scripts": {
+    "wrapped": "bun run src/cli.ts",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
