@@ -1,5 +1,5 @@
 // Hermes Agent：~/.hermes/state.db（SQLite，WAL）。
-// 本机的 DeepSeek（deepseek-v4-pro）主要跑在这里，经微信 / 桌面 / 命令行 / 定时任务等渠道。
+// DeepSeek 这类没有桌面应用的模型常跑在这里，经微信 / 桌面 / 命令行 / 定时任务等渠道。
 // 厂商按会话模型名归类，所以同一个库里的 MiMo、Claude 会话也会各归各家。
 
 import { Database } from "bun:sqlite";
