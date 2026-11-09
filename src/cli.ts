@@ -22,9 +22,9 @@ const HELP = `用法：bun run wrapped [选项]
   --out <目录>         输出目录（默认 out/）
   --redact            不在年报里显示任何原话片段和会话标题（适合公开分享）
   --json              同时输出统计数据 stats-<年份>.json
+  -h, --help          显示帮助
 
-每次生成两页：wrapped-<年份>.html（竖屏年报）和 atlas-<年份>.html（给人力 / 主管看的使用图鉴，可打印）
-  -h, --help          显示帮助`;
+每次生成两页：wrapped-<年份>.html（竖屏年报）和 atlas-<年份>.html（给人力 / 主管看的使用图鉴，可打印）`;
 
 const { values } = parseArgs({
   options: {
